@@ -75,13 +75,27 @@ API文档：[swagger](https://github.com/DrmagicE/gmqtt/blob/master/plugin/auth/
 
 
 ## Docker
-```
+```bash
 $ docker build -t gmqtt .
 $ docker run -p 1883:1883 -p 8883:8883 -p 8082:8082 -p 8083:8083  -p 8084:8084  gmqtt
 ```
 
+
+
+```bash
+sudo docker run -itd --name mqtt-server  --restart=on-failure:3 -p 1883:1883 -p 8883:8883 -p 8082:8082 -p 8083:8083  -p 8084:8084  gmqtt
+```
+
+```bash
+docker build --platform linux/arm64 -t gmqtt . 
+```
+
+
+
 # 文档说明
+
 [godoc](https://www.godoc.org/github.com/DrmagicE/gmqtt)
+
 ## 钩子方法
 Gmqtt实现了下列钩子方法。
 

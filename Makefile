@@ -46,7 +46,7 @@ clean:
 # remove all generated artifacts and clean all build artifacts
 clean-all:
 	go clean -i ./...
-	rm -fr build
+	rm -fr build/gmqttd
 
 # fetch and install all required tools
 tools:
@@ -135,3 +135,36 @@ binary: go-generate
 
 build-docker:
 	docker build -t gmqtt/gmqttd .
+
+
+docker-push:
+	docker push gmqtt:latest
+docker-pull:
+	docker stop gmqtt
+	docker rm gmqtt 
+	docker image rm gmqtt:latest
+	docker pull gmqtt:latest
+
+docker-run:
+	sudo docker run -itd \
+	-p 1883:1883 \
+	-p 8883:8883 \
+	-p 8082:8082 \
+	-p 8083:8083 \
+	--name gmqtt gmqtt/gmqttd 
+
+docker-always-run:
+	docker run -itd \
+	--restart=always \
+	-p 1883:1883 \
+	-p 8883:8883 \
+	-p 8082:8082 \
+	-p 8083:8083 \
+	--name gmqtt gmqtt
+
+arm: clean-all go-generate
+	CGO_ENABLED=0 GOARCH=arm64 GOOS=linux go build  -ldflags '-s' -o $(BUILD_DIR)/gmqttd ./cmd/gmqttd
+
+docker-build-arm:
+#	docker buildx build --platform=linux/arm,linux/arm64,linux/amd64 -t gmqtt:latest -o type=docker .
+	docker buildx build --platform=linux/arm64 -t gmqtt-arm:latest -o type=docker .

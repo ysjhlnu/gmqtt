@@ -1,25 +1,16 @@
-FROM golang:alpine AS builder
-
-RUN apk add make git
-
-ADD . /go/src/github.com/DrmagicE/gmqtt
-WORKDIR /go/src/github.com/DrmagicE/gmqtt
-
-ENV GO111MODULE on
-#ENV GOPROXY https://goproxy.cn
-
-EXPOSE 1883 8883 8082 8083 8084
-
-RUN make binary
-
-FROM alpine:3.12
+FROM alpine:3.13.1
+RUN echo "http://mirrors.aliyun.com/alpine/v3.13/main/" > /etc/apk/repositories
+RUN echo "http://mirrors.aliyun.com/alpine/v3.13/community/" >> /etc/apk/repositories
+RUN apk add tzdata && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+  && echo "Asia/Shanghai" > /etc/timezone \
+  && apk del tzdata
 
 WORKDIR /gmqttd
-COPY --from=builder /go/src/github.com/DrmagicE/gmqtt/build/gmqttd .
-RUN mkdir /etc/gmqtt
-COPY ./cmd/gmqttd/default_config.yml /etc/gmqtt/gmqttd.yml
+COPY build/ .
+
+RUN ls
+EXPOSE 1883 8883 8082 8083 8084
 ENV PATH=$PATH:/gmqttd
 RUN chmod +x gmqttd
-ENTRYPOINT ["gmqttd","start"]
 
-
+ENTRYPOINT ["gmqttd","start","-c","gmqtt.yml"]
